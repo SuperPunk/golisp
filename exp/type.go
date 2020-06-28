@@ -48,3 +48,7 @@ func IsPrimitiveProcedure(procedure int) bool {
 func IsCompoundProcedure(procedure int) bool {
 	return true
 }
+
+func NoOperands(exps int) bool {
+	return true
+}

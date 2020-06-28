@@ -2,6 +2,10 @@ package core
 
 import (
 	lexp "golisp/exp"
+	"golisp/exp/assign"
+	"golisp/exp/define"
+	"golisp/exp/exps"
+	"golisp/exp/if"
 	"strconv"
 )
 
@@ -31,7 +35,20 @@ func Eval(exp, env int) int {
 	}
 }
 
-func listOfValues(i int, env int) int {
+// 生成实际参数表
+func listOfValues(exps int, env int) int {
+	if lexp.NoOperands(exps) {
+		return 0
+	}
+	// todo 定义list结构
+	return Eval(firstOperand(exps), env) + listOfValues(restOperands(exps), env)
+}
+
+func restOperands(exps int) int {
+	return 0
+}
+
+func firstOperand(exps int) int {
 	return 0
 }
 
@@ -47,8 +64,13 @@ func cond2If(exp int) int {
 	return 0
 }
 
-func evalSequence(actions int, env int) int {
-	return 0
+func evalSequence(expressions int, env int) int {
+	if exps.LastExp(expressions) {
+		return Eval(exps.FirstExp(expressions), env)
+	} else {
+		Eval(exps.FirstExp(expressions), env)
+		return evalSequence(exps.RestExps(expressions), env)
+	}
 }
 
 func beginActions(exp int) int {
@@ -68,15 +90,18 @@ func makeProcedure(parameters int, body int, env int) int {
 }
 
 func evalIf(exp int, env int) int {
-	return 0
+	if _if.True(Eval(_if.Predicate(exp), env)) {
+		return Eval(_if.Consequent(exp), env)
+	}
+	return Eval(_if.Alternative(exp), env)
 }
 
 func evalDefinition(exp int, env int) int {
-	return 0
+	return define.DefineVariable(define.DefinitionVariable(exp), Eval(define.DefinitionValue(exp), env), env)
 }
 
 func evalAssignment(exp int, env int) int {
-	return 0
+	return assign.SetVariableValue(assign.AssignmentVariable(exp), Eval(assign.AssignmentValue(exp), env), env)
 }
 
 func textOfQuotation(exp int) int {
