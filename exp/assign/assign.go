@@ -1,13 +1,16 @@
 package assign
 
-func AssignmentVariable(exp int) int {
-	return 0
+import "golisp/exp/common"
+
+// (set! ⟨var⟩ ⟨value⟩)
+func Assignment(exp []string) bool {
+	return common.TaggedList(exp, "set!")
 }
 
-func AssignmentValue(exp int) int {
-	return 0
+func AssignmentVariable(exp []string) int {
+	return exp[1]
 }
 
-func SetVariableValue(variable int, value int, env int) int {
-	return 0
+func AssignmentValue(exp []string) int {
+	return exp[2]
 }

@@ -1,35 +1,42 @@
 package core
 
 import (
-	lexp "golisp/exp"
+	"golisp/exp/application"
 	"golisp/exp/assign"
+	"golisp/exp/begin"
+	"golisp/exp/cond"
 	"golisp/exp/define"
 	"golisp/exp/exps"
 	"golisp/exp/if"
+	"golisp/exp/lambda"
+	"golisp/exp/procedure"
+	"golisp/exp/quote"
+	"golisp/exp/se"
+	"golisp/exp/variable"
 	"strconv"
 )
 
 func Eval(exp, env int) int {
-	if lexp.IsSelfEvaluating(exp) {
+	if se.SelfEvaluating(exp) {
 		return exp
-	} else if lexp.IsVariable(exp) {
-		return lookupVariableValue(exp, env)
-	} else if lexp.IsQuoted(exp) {
+	} else if variable.Variable(exp) {
+		return application.LookupVariableValue(exp, env)
+	} else if quote.Quoted(exp) {
 		return textOfQuotation(exp)
-	} else if lexp.IsAssignment(exp) {
+	} else if assign.Assignment(exp) {
 		return evalAssignment(exp, env)
-	} else if lexp.IsDefinition(exp) {
+	} else if define.Definition(exp) {
 		return evalDefinition(exp, env)
-	} else if lexp.IsIf(exp) {
+	} else if _if.If(exp) {
 		return evalIf(exp, env)
-	} else if lexp.IsLambda(exp) {
-		return makeProcedure(lambdaParameters(exp), lambdaBody(exp), env)
-	} else if lexp.IsBegin(exp) {
-		return evalSequence(beginActions(exp), env)
-	} else if lexp.IsCond(exp) {
-		return Eval(cond2If(exp), env)
-	} else if lexp.IsApplication(exp) {
-		return apply(Eval(operator(exp), env), listOfValues(operands(exp), env))
+	} else if lambda.Lambda(exp) {
+		return procedure.MakeProcedure(lambda.LambdaParameters(exp), lambda.LambdaBody(exp), env)
+	} else if begin.IsBegin(exp) {
+		return evalSequence(begin.BeginActions(exp), env)
+	} else if cond.IsCond(exp) {
+		return Eval(cond.Cond2If(exp), env)
+	} else if application.IsApplication(exp) {
+		return apply(Eval(application.Operator(exp), env), listOfValues(application.Operands(exp), env))
 	} else {
 		panic("Unknown expression type -- EVAL " + strconv.Itoa(exp))
 	}
@@ -37,31 +44,11 @@ func Eval(exp, env int) int {
 
 // 生成实际参数表
 func listOfValues(exps int, env int) int {
-	if lexp.NoOperands(exps) {
+	if application.NoOperands(exps) {
 		return 0
 	}
 	// todo 定义list结构
-	return Eval(firstOperand(exps), env) + listOfValues(restOperands(exps), env)
-}
-
-func restOperands(exps int) int {
-	return 0
-}
-
-func firstOperand(exps int) int {
-	return 0
-}
-
-func operands(exp int) int {
-	return 0
-}
-
-func operator(exp int) int {
-	return 0
-}
-
-func cond2If(exp int) int {
-	return 0
+	return Eval(application.FirstOperand(exps), env) + listOfValues(application.RestOperands(exps), env)
 }
 
 func evalSequence(expressions int, env int) int {
@@ -73,41 +60,32 @@ func evalSequence(expressions int, env int) int {
 	}
 }
 
-func beginActions(exp int) int {
-	return 0
-}
-
-func lambdaBody(exp int) int {
-	return 0
-}
-
-func lambdaParameters(exp int) int {
-	return 0
-}
-
-func makeProcedure(parameters int, body int, env int) int {
-	return 0
-}
-
 func evalIf(exp int, env int) int {
-	if _if.True(Eval(_if.Predicate(exp), env)) {
-		return Eval(_if.Consequent(exp), env)
+	if _if.True(Eval(_if.IfPredicate(exp), env)) {
+		return Eval(_if.IfConsequent(exp), env)
 	}
-	return Eval(_if.Alternative(exp), env)
+	return Eval(_if.IfAlternative(exp), env)
 }
 
 func evalDefinition(exp int, env int) int {
-	return define.DefineVariable(define.DefinitionVariable(exp), Eval(define.DefinitionValue(exp), env), env)
+	return application.DefineVariable(define.DefinitionVariable(exp), Eval(define.DefinitionValue(exp), env), env)
 }
 
 func evalAssignment(exp int, env int) int {
-	return assign.SetVariableValue(assign.AssignmentVariable(exp), Eval(assign.AssignmentValue(exp), env), env)
+	return application.SetVariableValue(assign.AssignmentVariable(exp), Eval(assign.AssignmentValue(exp), env), env)
 }
 
 func textOfQuotation(exp int) int {
+	// todo 回头再看，涉及到exp的表示
 	return 0
 }
 
-func lookupVariableValue(exp int, env int) int {
-	return 0
+func apply(proc int, arguments int) int {
+	if procedure.IsPrimitive(proc) {
+		return procedure.ApplyPrimitiveProcedure(proc, arguments)
+	} else if procedure.IsCompound(proc) {
+		return evalSequence(procedure.Body(proc), application.ExtendEnvironment(procedure.Parameters(proc), arguments, procedure.Environment(proc)))
+	} else {
+		panic("Unknown procedure type -- APPLY " + strconv.Itoa(proc))
+	}
 }
