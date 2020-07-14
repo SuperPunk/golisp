@@ -9,6 +9,11 @@ func Cons(left, right interface{}) *Pair {
 	return &Pair{left, right}
 }
 
+// todo 用于map，不知道有没有什么更好的方式
+func MCar(p interface{}) interface{} {
+	return Car(p.(*Pair))
+}
+
 func Car(p *Pair) interface{} {
 	return p.left
 }
