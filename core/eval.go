@@ -16,7 +16,7 @@ import (
 	"strconv"
 )
 
-func Eval(exp, env int) int {
+func Eval(exp, env int) interface{} {
 	if se.SelfEvaluating(exp) {
 		return exp
 	} else if variable.Variable(exp) {
