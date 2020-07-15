@@ -4,7 +4,11 @@ func TaggedList(exp *Pair, tag string) bool {
 	return Car(exp) == tag
 }
 
-// todo 变量由符号表示
-func Symbol(exp int) bool {
-	return true
+func IsSymbol(expression interface{}) bool {
+	exp, ok := expression.(string)
+	return ok && isLetter(exp[0]) && IsSymbol(exp[1:])
+}
+
+func isLetter(c uint8) bool {
+	return (c > 'a' && c < 'z') || (c > 'A' && c < 'Z')
 }

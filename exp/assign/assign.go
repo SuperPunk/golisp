@@ -3,14 +3,15 @@ package assign
 import "golisp/exp/common"
 
 // (set! ⟨var⟩ ⟨value⟩)
-func Assignment(exp []string) bool {
-	return common.TaggedList(exp, "set!")
+func Assignment(expression interface{}) bool {
+	exp, ok := expression.(*common.Pair)
+	return ok && common.TaggedList(exp, "set!")
 }
 
-func AssignmentVariable(exp []string) int {
-	return exp[1]
+func AssignmentVariable(exp *common.Pair) string {
+	return common.Cadr(exp).(string)
 }
 
-func AssignmentValue(exp []string) int {
-	return exp[2]
+func AssignmentValue(exp *common.Pair) interface{} {
+	return common.Caddr(exp).(string)
 }

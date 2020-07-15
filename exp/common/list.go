@@ -5,7 +5,7 @@ func List(values ...interface{}) *Pair {
 	if len(values) == 0 {
 		return nil
 	}
-	return Cons(values[0], List(values[1:]))
+	return Cons(values[0], List(values[1:]...))
 }
 
 func Length(p *Pair) int {

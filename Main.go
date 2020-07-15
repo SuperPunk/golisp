@@ -8,6 +8,7 @@ import (
 	"golisp/exp/common"
 	"golisp/exp/procedure"
 	"os"
+	"strings"
 )
 
 // 解释器最终把表达式规约到基本过程(语言原生提供的过程)的应用
@@ -53,12 +54,13 @@ func setupEnvironment() *common.Pair {
 
 func inputFromCMD() string {
 	input, _ := bufio.NewReader(os.Stdin).ReadString('\n')
-	return input
+	return strings.TrimSuffix(input, "\n")
 }
 
 func userPrint(object interface{}) {
-	if procedure.IsCompound(object) {
-		fmt.Print(common.List("compound-procedure", procedure.Parameters(object), procedure.Body(object)))
+	// todo check
+	if v, ok := object.(*common.Pair); ok && procedure.IsCompound(v) {
+		fmt.Print(common.List("compound-procedure", procedure.Parameters(v), procedure.Body(v)))
 	}
 	fmt.Print(object)
 }

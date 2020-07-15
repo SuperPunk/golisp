@@ -1,6 +1,9 @@
 package define
 
-import "golisp/exp/common"
+import (
+	"golisp/exp/common"
+	"golisp/exp/lambda"
+)
 
 // ------变量定义
 // (define ⟨var⟩ ⟨value⟩)
@@ -13,26 +16,21 @@ import "golisp/exp/common"
 //  (lambda (⟨param⟩ … ⟨param⟩)
 //    ⟨body⟩))
 
-func Definition(exp []string) bool {
-	return common.TaggedList(exp, "define")
+func Definition(expression interface{}) bool {
+	exp, ok := expression.(*common.Pair)
+	return ok && common.TaggedList(exp, "define")
 }
 
-func DefinitionVariable(exp []string) int {
-	//  (if (symbol? (cadr exp))
-	//      (cadr exp)
-	//      (caadr exp)))
-	if common.Symbol(exp[1]) {
-		return exp[1]
+func DefinitionVariable(exp *common.Pair) string {
+	if common.IsSymbol(common.Cadr(exp)) {
+		return common.Cadr(exp).(string)
 	}
-	panic("error occurs when retrieve definition variable") // todo caadr(exp)是啥意思
+	return common.Caadr(exp).(string)
 }
 
-func DefinitionValue(exp int) int {
-	//  (if (symbol? (cadr exp))
-	//      (caddr exp)
-	//      (make-lambda
-	//       (cdadr exp)   ; formal parameters
-	//       (cddr exp)))) ; body
-	// todo 看不懂书中代码，exp的构造，回过来再看
-	return 0
+func DefinitionValue(exp *common.Pair) interface{} {
+	if common.IsSymbol(common.Cadr(exp)) {
+		return common.Caddr(exp).(string)
+	}
+	return lambda.MakeLambda(common.Cdadr(exp).(*common.Pair), common.Cddr(exp).(string))
 }

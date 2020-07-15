@@ -4,18 +4,19 @@ import "golisp/exp/common"
 
 //  (lambda (⟨param⟩ … ⟨param⟩) ⟨body⟩))
 
-func Lambda(exp []string) bool {
-	return common.TaggedList(exp, "lambda")
+func IsLambda(expression interface{}) bool {
+	exp, ok := expression.(*common.Pair)
+	return ok && common.TaggedList(exp, "lambda")
 }
 
-func LambdaParameters(exp []string) int {
-	return exp[1]
+func Parameters(exp *common.Pair) *common.Pair {
+	return common.Cadr(exp).(*common.Pair)
 }
 
-func LambdaBody(exp []string) int {
-	return exp[2]
+func Body(exp *common.Pair) string {
+	return common.Cddr(exp).(string)
 }
 
-func MakeLambda(parameters string, body string) []string {
-	return []string{"lambda", parameters, body}
+func MakeLambda(parameters *common.Pair, body string) *common.Pair {
+	return common.Cons("lambda", common.Cons(parameters, body))
 }

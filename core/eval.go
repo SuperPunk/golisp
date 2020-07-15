@@ -4,6 +4,7 @@ import (
 	"golisp/exp/application"
 	"golisp/exp/assign"
 	"golisp/exp/begin"
+	"golisp/exp/common"
 	"golisp/exp/cond"
 	"golisp/exp/define"
 	"golisp/exp/exps"
@@ -13,46 +14,49 @@ import (
 	"golisp/exp/quote"
 	"golisp/exp/se"
 	"golisp/exp/variable"
-	"strconv"
+	"log"
 )
 
-func Eval(exp, env int) interface{} {
+func Eval(exp interface{}, env *common.Pair) interface{} {
 	if se.SelfEvaluating(exp) {
 		return exp
 	} else if variable.Variable(exp) {
 		return application.LookupVariableValue(exp, env)
-	} else if quote.Quoted(exp) {
-		return textOfQuotation(exp)
+	} else if quote.IsQuoted(exp) {
+		return quote.TextOfQuotation(exp.(*common.Pair))
 	} else if assign.Assignment(exp) {
-		return evalAssignment(exp, env)
+		evalAssignment(exp.(*common.Pair), env)
+		return nil // todo check
 	} else if define.Definition(exp) {
-		return evalDefinition(exp, env)
+		evalDefinition(exp.(*common.Pair), env)
+		return nil // todo check
 	} else if _if.If(exp) {
-		return evalIf(exp, env)
-	} else if lambda.Lambda(exp) {
-		return procedure.MakeProcedure(lambda.LambdaParameters(exp), lambda.LambdaBody(exp), env)
+		return evalIf(exp.(*common.Pair), env)
+	} else if lambda.IsLambda(exp) {
+		return procedure.MakeProcedure(lambda.Parameters(exp.(*common.Pair)), lambda.Body(exp.(*common.Pair)), env)
 	} else if begin.IsBegin(exp) {
-		return evalSequence(begin.BeginActions(exp), env)
+		return evalSequence(begin.Actions(exp.(*common.Pair)), env)
 	} else if cond.IsCond(exp) {
-		return Eval(cond.Cond2If(exp), env)
+		return Eval(cond.ToIf(exp.(*common.Pair)), env)
 	} else if application.IsApplication(exp) {
-		return apply(Eval(application.Operator(exp), env), listOfValues(application.Operands(exp), env))
+		return apply(Eval(application.Operator(exp.(*common.Pair)), env), listOfValues(application.Operands(exp.(*common.Pair)), env))
 	} else {
-		panic("Unknown expression type -- EVAL " + strconv.Itoa(exp))
+		log.Fatal("Unknown expression type -- EVAL ", exp)
+		return nil
 	}
 }
 
 // 生成实际参数表
-func listOfValues(exps int, env int) int {
+func listOfValues(exps *common.Pair, env *common.Pair) *common.Pair {
 	if application.NoOperands(exps) {
-		return 0
+		return common.List()
 	}
-	// todo 定义list结构
-	return Eval(application.FirstOperand(exps), env) + listOfValues(application.RestOperands(exps), env)
+	return common.Cons(Eval(application.FirstOperand(exps), env), listOfValues(application.RestOperands(exps), env))
 }
 
-func evalSequence(expressions int, env int) int {
-	if exps.LastExp(expressions) {
+// 返回值是一串表达式的最后一个值
+func evalSequence(expressions, env *common.Pair) interface{} {
+	if exps.IsLastExp(expressions) {
 		return Eval(exps.FirstExp(expressions), env)
 	} else {
 		Eval(exps.FirstExp(expressions), env)
@@ -60,32 +64,30 @@ func evalSequence(expressions int, env int) int {
 	}
 }
 
-func evalIf(exp int, env int) int {
+func evalIf(exp, env *common.Pair) interface{} {
 	if _if.True(Eval(_if.IfPredicate(exp), env)) {
 		return Eval(_if.IfConsequent(exp), env)
 	}
 	return Eval(_if.IfAlternative(exp), env)
 }
 
-func evalDefinition(exp int, env int) int {
-	return application.DefineVariable(define.DefinitionVariable(exp), Eval(define.DefinitionValue(exp), env), env)
+func evalDefinition(exp, env *common.Pair) {
+	application.DefineVariable(define.DefinitionVariable(exp), Eval(define.DefinitionValue(exp), env), env)
 }
 
-func evalAssignment(exp int, env int) int {
-	return application.SetVariableValue(assign.AssignmentVariable(exp), Eval(assign.AssignmentValue(exp), env), env)
+func evalAssignment(exp, env *common.Pair) {
+	application.SetVariableValue(assign.AssignmentVariable(exp), Eval(assign.AssignmentValue(exp), env), env)
 }
 
-func textOfQuotation(exp int) int {
-	// todo 回头再看，涉及到exp的表示
-	return 0
-}
-
-func apply(proc int, arguments int) int {
+func apply(proc interface{}, arguments *common.Pair) interface{} {
 	if procedure.IsPrimitive(proc) {
-		return procedure.ApplyPrimitiveProcedure(proc, arguments)
+		return procedure.ApplyPrimitiveProcedure(proc.(*common.Pair), arguments)
 	} else if procedure.IsCompound(proc) {
-		return evalSequence(procedure.Body(proc), application.ExtendEnvironment(procedure.Parameters(proc), arguments, procedure.Environment(proc)))
+		return evalSequence(
+			procedure.Body(proc.(*common.Pair)),
+			application.ExtendEnvironment(procedure.Parameters(proc.(*common.Pair)), arguments, procedure.Environment(proc.(*common.Pair))))
 	} else {
-		panic("Unknown procedure type -- APPLY " + strconv.Itoa(proc))
+		log.Fatal("Unknown procedure type -- APPLY ", proc)
+		return nil
 	}
 }

@@ -7,28 +7,28 @@ import (
 
 var TheEmptyEnvironment = common.List()
 
-func IsApplication(exp []string) bool {
-	return IsPair(exp)
+func IsApplication(exp interface{}) bool {
+	return common.IsPair(exp)
 }
 
-func Operator(exp []string) string {
-	return exp[0]
+func Operator(exp *common.Pair) interface{} {
+	return common.Car(exp)
 }
 
-func Operands(exp []string) string {
-	return exp[1]
+func Operands(exp *common.Pair) *common.Pair {
+	return common.Cdr(exp).(*common.Pair)
 }
 
-func NoOperands(ops []string) bool {
+func NoOperands(ops *common.Pair) bool {
 	return ops == nil
 }
 
-func FirstOperand(ops []string) string {
-	return ops[0]
+func FirstOperand(ops *common.Pair) interface{} {
+	return common.Car(ops)
 }
 
-func RestOperands(ops []string) string {
-	return nil
+func RestOperands(ops *common.Pair) *common.Pair {
+	return common.Cdr(ops).(*common.Pair)
 }
 
 // 查询变量值
@@ -117,6 +117,7 @@ func ExtendEnvironment(variables *common.Pair, values *common.Pair, baseEnv *com
 	return nil
 }
 
+// 一个环境的外围环境，就是该环境的cdr
 func EnclosingEnvironment(env *common.Pair) *common.Pair {
 	return common.Cdr(env).(*common.Pair)
 }
@@ -126,7 +127,7 @@ func FirstFrame(env *common.Pair) *common.Pair {
 }
 
 // 返回一个variables和values的pair
-func MakeFrame(variables interface{}, values interface{}) *common.Pair {
+func MakeFrame(variables *common.Pair, values *common.Pair) *common.Pair {
 	return common.Cons(variables, values)
 }
 

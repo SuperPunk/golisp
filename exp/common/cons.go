@@ -26,6 +26,30 @@ func Cadr(p *Pair) interface{} {
 	return Car(Cdr(p).(*Pair))
 }
 
+func Caddr(p *Pair) interface{} {
+	return Car(Cdr(Cdr(p).(*Pair)).(*Pair))
+}
+
+func Caadr(p *Pair) interface{} {
+	return Car(Car(Cdr(p).(*Pair)).(*Pair))
+}
+
+func Cdadr(p *Pair) interface{} {
+	return Cdr(Car(Cdr(p).(*Pair)).(*Pair))
+}
+
+func Cddr(p *Pair) interface{} {
+	return Cdr(Cdr(p).(*Pair))
+}
+
+func Cdddr(p *Pair) interface{} {
+	return Cdr(Cdr(Cdr(p).(*Pair)).(*Pair))
+}
+
+func Cadddr(p *Pair) interface{} {
+	return Car(Cdr(Cdr(Cdr(p).(*Pair)).(*Pair)).(*Pair))
+}
+
 func SetCar(p *Pair, v interface{}) {
 	p.left = v
 }

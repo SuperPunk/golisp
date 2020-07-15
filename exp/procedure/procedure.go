@@ -5,8 +5,9 @@ import (
 	"reflect"
 )
 
-func IsPrimitive(proc *common.Pair) bool {
-	return common.TaggedList(proc, "primitive")
+func IsPrimitive(proc interface{}) bool {
+	procedure, ok := proc.(*common.Pair)
+	return ok && common.TaggedList(procedure, "primitive")
 }
 
 func PrimitiveImplementation(proc *common.Pair) interface{} {
@@ -21,20 +22,21 @@ func MakeProcedure(parameters interface{}, body interface{}, env interface{}) *c
 	return common.List("procedure", parameters, body, env)
 }
 
-func IsCompound(proc []string) bool {
-	return common.TaggedList(proc, "procedure")
+func IsCompound(proc interface{}) bool {
+	procedure, ok := proc.(*common.Pair)
+	return ok && common.TaggedList(procedure, "procedure")
 }
 
-func Parameters(proc []string) string {
-	return proc[1]
+func Parameters(proc *common.Pair) *common.Pair {
+	return common.Cadr(proc).(*common.Pair)
 }
 
-func Body(proc []string) string {
-	return proc[2]
+func Body(proc *common.Pair) *common.Pair {
+	return common.Caddr(proc).(*common.Pair)
 }
 
-func Environment(proc []string) string {
-	return proc[3]
+func Environment(proc *common.Pair) *common.Pair {
+	return common.Cadddr(proc).(*common.Pair)
 }
 
 func PrimitiveProcedures() *common.Pair {

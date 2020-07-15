@@ -6,6 +6,13 @@ func IsNull(value interface{}) bool {
 	return value == nil
 }
 
+// todo check
+func IsPair(value interface{}) bool {
+	pair1, ok1 := value.(*Pair)
+	_, ok2 := Cdr(pair1).(*Pair)
+	return ok1 && !ok2
+}
+
 func Map(proc Proc, list *Pair) *Pair {
 	if list == nil {
 		return nil

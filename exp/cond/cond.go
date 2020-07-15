@@ -1,48 +1,49 @@
 package cond
 
 import (
-	"golisp/exp/begin"
 	"golisp/exp/common"
+	"golisp/exp/exps"
 	_if "golisp/exp/if"
 	"log"
 )
 
 // cond是派生表达式，可转化为嵌套的if
-func IsCond(exp []string) bool {
-	return common.TaggedList(exp, "cond")
+func IsCond(expression interface{}) bool {
+	exp, ok := expression.(*common.Pair)
+	return ok && common.TaggedList(exp, "cond")
 }
 
-func CondClauses(exp []string) string {
-	return exp[1]
+func Clauses(exp *common.Pair) *common.Pair {
+	return common.Cdr(exp).(*common.Pair)
 }
 
-func IsCondElseClause(clause []string) bool {
-	return CondPredicate(clause) == "else"
+func IsCondElseClause(clause *common.Pair) bool {
+	return Predicate(clause) == "else"
 }
 
-func CondPredicate(clause []string) string {
-	return clause[0]
+func Predicate(clause *common.Pair) string {
+	return common.Car(clause).(string)
 }
 
-func CondActions(clause []string) string {
-	return clause[1]
+func Actions(clause *common.Pair) *common.Pair {
+	return common.Cdr(clause).(*common.Pair)
 }
 
-func Cond2If(exp []string) []string {
-	return ExpandClauses(CondClauses(exp))
+func ToIf(exp *common.Pair) interface{} {
+	return ExpandClauses(Clauses(exp))
 }
 
-func ExpandClauses(clauses string) []string {
+func ExpandClauses(clauses *common.Pair) interface{} {
 	if clauses == nil {
 		return nil
 	}
-	return func(first []string, rest []string) []string {
+	return func(first, rest *common.Pair) interface{} {
 		if IsCondElseClause(first) {
 			if rest == nil {
-				return begin.Sequence2Exp(CondActions(first))
+				return exps.Sequence2Exp(Actions(first))
 			}
-			log.Fatal("ELSE clause isn't last: Cond2If", clauses)
+			log.Fatal("ELSE clause isn't last: ToIf", clauses)
 		}
-		return _if.MakeIf(CondPredicate(first), begin.Sequence2Exp(CondActions(first)), ExpandClauses(rest))
-	}(clauses[0], clauses[1])
+		return _if.MakeIf(Predicate(first), exps.Sequence2Exp(Actions(first)), ExpandClauses(rest))
+	}(common.Car(clauses).(*common.Pair), common.Cdr(clauses).(*common.Pair))
 }
