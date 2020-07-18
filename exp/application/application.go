@@ -2,6 +2,7 @@ package application
 
 import (
 	"golisp/exp/common"
+	"golisp/exp/procedure"
 	"log"
 )
 
@@ -49,7 +50,7 @@ func LookupVariableValue(variable interface{}, env *common.Pair) interface{} {
 		}
 
 		if env == TheEmptyEnvironment {
-			log.Fatal("unbound variable", variable)
+			log.Fatal("unbound variable: ", variable)
 			return nil
 		}
 
@@ -144,4 +145,13 @@ func FrameValues(frame *common.Pair) *common.Pair {
 func AddBindingToFrame(variable interface{}, value interface{}, frame *common.Pair) {
 	common.SetCar(frame, common.Cons(variable, common.Car(frame)))
 	common.SetCdr(frame, common.Cons(value, common.Cdr(frame)))
+}
+
+func SetupEnvironment() *common.Pair {
+	return func(initialEnv *common.Pair) *common.Pair {
+		DefineVariable("true", true, initialEnv)
+		DefineVariable("false", false, initialEnv)
+		DefineVariable("nil", nil, initialEnv)
+		return initialEnv
+	}(ExtendEnvironment(procedure.PrimitiveNames(), procedure.PrimitiveObjects(), TheEmptyEnvironment))
 }

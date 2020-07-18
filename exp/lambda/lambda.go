@@ -13,10 +13,10 @@ func Parameters(exp *common.Pair) *common.Pair {
 	return common.Cadr(exp).(*common.Pair)
 }
 
-func Body(exp *common.Pair) string {
-	return common.Cddr(exp).(string)
+func Body(exp *common.Pair) interface{} {
+	return common.Cddr(exp)
 }
 
-func MakeLambda(parameters *common.Pair, body string) *common.Pair {
+func MakeLambda(parameters *common.Pair, body interface{}) *common.Pair {
 	return common.Cons("lambda", common.Cons(parameters, body))
 }

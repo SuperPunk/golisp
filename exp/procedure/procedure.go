@@ -67,10 +67,15 @@ func applyInUnderlyingGolang(proc interface{}, args *common.Pair) interface{} {
 			return nil
 		}
 		var s []reflect.Value
-		s = append(s, reflect.ValueOf(common.Car(args)))
+		arg := common.Car(args)
+		if arg == nil {
+			s = append(s, reflect.ValueOf((*interface{})(nil)))
+		} else {
+			s = append(s, reflect.ValueOf(arg))
+		}
 		s = append(s, castArgs(common.Cdr(args).(*common.Pair))...)
 		return s
 	}
 
-	return reflect.ValueOf(proc).Call(castArgs(args))[0]
+	return reflect.ValueOf(proc).Call(castArgs(args))[0].Interface()
 }

@@ -6,9 +6,15 @@ func TaggedList(exp *Pair, tag string) bool {
 
 func IsSymbol(expression interface{}) bool {
 	exp, ok := expression.(string)
-	return ok && isLetter(exp[0]) && IsSymbol(exp[1:])
+	if !ok {
+		return false
+	}
+	if exp == "" {
+		return true
+	}
+	return isLetter(exp[0]) && IsSymbol(exp[1:])
 }
 
 func isLetter(c uint8) bool {
-	return (c > 'a' && c < 'z') || (c > 'A' && c < 'Z')
+	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '?'
 }

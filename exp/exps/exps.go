@@ -5,8 +5,9 @@ import (
 	"golisp/exp/common"
 )
 
+// 这样判断 common.Cdr(exps) == nil有坑
 func IsLastExp(exps *common.Pair) bool {
-	return common.Cdr(exps) == nil
+	return common.IsNull(common.Cdr(exps))
 }
 
 func FirstExp(exps *common.Pair) interface{} {

@@ -22,7 +22,7 @@ func main() {
 
 var inputPrompt = ";;; M-Eval input:"
 var outputPrompt = ";;; M-Eval value:"
-var theGlobalEnvironment = setupEnvironment()
+var theGlobalEnvironment = application.SetupEnvironment()
 
 // R-E-P Loop
 func driverLoop() {
@@ -42,14 +42,6 @@ func promptForInput(s string) {
 
 func announceOutput(s string) {
 	fmt.Printf("\n%s\n", s)
-}
-
-func setupEnvironment() *common.Pair {
-	return func(initialEnv *common.Pair) *common.Pair {
-		application.DefineVariable("true", true, initialEnv)
-		application.DefineVariable("false", false, initialEnv)
-		return initialEnv
-	}(application.ExtendEnvironment(procedure.PrimitiveNames(), procedure.PrimitiveObjects(), application.TheEmptyEnvironment))
 }
 
 func inputFromCMD() string {

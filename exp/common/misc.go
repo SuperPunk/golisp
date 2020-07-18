@@ -1,16 +1,21 @@
 package common
 
+import "reflect"
+
 type Proc func(interface{}) interface{}
 
+// todo 判断interface是否为空，这串代码不知道是什么意思，有时间再看看go里面的nil吧。（nil==nil is false）
 func IsNull(value interface{}) bool {
-	return value == nil
+	vi := reflect.ValueOf(value)
+	if vi.Kind() == reflect.Ptr {
+		return vi.IsNil()
+	}
+	return false
 }
 
-// todo check
 func IsPair(value interface{}) bool {
-	pair1, ok1 := value.(*Pair)
-	_, ok2 := Cdr(pair1).(*Pair)
-	return ok1 && !ok2
+	_, ok := value.(*Pair)
+	return ok
 }
 
 func Map(proc Proc, list *Pair) *Pair {

@@ -50,6 +50,14 @@ func Cadddr(p *Pair) interface{} {
 	return Car(Cdr(Cdr(Cdr(p).(*Pair)).(*Pair)).(*Pair))
 }
 
+func Caddddr(p *Pair) interface{} {
+	return Car(Cdr(Cdr(Cdr(Cdr(p).(*Pair)).(*Pair)).(*Pair)).(*Pair))
+}
+
+func Cadddddr(p *Pair) interface{} {
+	return Car(Cdr(Cdr(Cdr(Cdr(Cdr(p).(*Pair)).(*Pair)).(*Pair)).(*Pair)).(*Pair))
+}
+
 func SetCar(p *Pair, v interface{}) {
 	p.left = v
 }
