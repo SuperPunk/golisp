@@ -1,5 +1,11 @@
 package common
 
+import (
+	"fmt"
+	"strconv"
+	"strings"
+)
+
 type Pair struct {
 	left  interface{}
 	right interface{}
@@ -64,4 +70,31 @@ func SetCar(p *Pair, v interface{}) {
 
 func SetCdr(p *Pair, v interface{}) {
 	p.right = v
+}
+
+func (p *Pair) String() string {
+	return fmt.Sprintf("(%s)", p.convertToStr())
+}
+
+func (p *Pair) convertToStr() string {
+	if p == nil {
+		return ""
+	}
+	var str strings.Builder
+	str.WriteString(conv2str(p.left))
+	if IsNull(p.right) {
+		return str.String()
+	}
+	str.WriteString(fmt.Sprintf(" %s", p.right.(*Pair).convertToStr()))
+	return str.String()
+}
+
+func conv2str(v interface{}) string {
+	if i, ok := v.(int); ok {
+		return strconv.Itoa(i)
+	}
+	if p, ok := v.(*Pair); ok {
+		return p.String()
+	}
+	return v.(string)
 }

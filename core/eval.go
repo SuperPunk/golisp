@@ -1,7 +1,6 @@
 package core
 
 import (
-	"fmt"
 	"golisp/exp/application"
 	"golisp/exp/assign"
 	"golisp/exp/begin"
@@ -30,8 +29,7 @@ func Eval(exp interface{}, env *common.Pair) interface{} {
 		return nil // todo check
 	} else if define.Definition(exp) {
 		evalDefinition(exp.(*common.Pair), env)
-		fmt.Println("ok")
-		return nil
+		return "ok"
 	} else if _if.If(exp) {
 		return evalIf(exp.(*common.Pair), env)
 	} else if lambda.IsLambda(exp) {

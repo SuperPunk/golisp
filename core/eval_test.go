@@ -43,20 +43,18 @@ func TestEval(t *testing.T) {
 	assert.Equal(t, "'d", common.Cadddr(value))
 	assert.Equal(t, "'e", common.Caddddr(value))
 	assert.Equal(t, "'f", common.Cadddddr(value))
-}
 
-func TestEval2(t *testing.T) {
-	globalEnv := application.SetupEnvironment()
-
-	// 求值：
-	// (* 5 (+ 2 3))
-	exp := common.List("*", 5, common.List("+", 2, 3))
-	value := Eval(exp, globalEnv).(*common.Pair)
-
-	assert.Equal(t, "'a", common.Car(value))
-	assert.Equal(t, "'b", common.Cadr(value))
-	assert.Equal(t, "'c", common.Caddr(value))
-	assert.Equal(t, "'d", common.Cadddr(value))
-	assert.Equal(t, "'e", common.Caddddr(value))
-	assert.Equal(t, "'f", common.Cadddddr(value))
+	// 应用过程：
+	// (append (1 2) (3 4))
+	// (append (cons 1 (cons 2 nil)) (cons 3 (cons 4 nil)))
+	exp = common.List("append",
+		common.List("cons", "1",
+			common.List("cons", "2", "nil")),
+		common.List("cons", "3",
+			common.List("cons", "4", "nil")))
+	value = Eval(exp, globalEnv).(*common.Pair)
+	assert.Equal(t, "1", common.Car(value))
+	assert.Equal(t, "2", common.Cadr(value))
+	assert.Equal(t, "3", common.Caddr(value))
+	assert.Equal(t, "4", common.Cadddr(value))
 }

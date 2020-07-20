@@ -6,7 +6,6 @@ import (
 	"golisp/core"
 	"golisp/exp/application"
 	"golisp/exp/common"
-	"golisp/exp/procedure"
 	"os"
 	"strings"
 )
@@ -30,9 +29,8 @@ func driverLoop() {
 	expression := inputFromCMD()
 	tokens := tokenize(expression)
 	ast := buildAST(tokens)
-	output := core.Eval(ast, theGlobalEnvironment)
-	announceOutput(outputPrompt)
-	userPrint(output)
+	value := core.Eval(ast, theGlobalEnvironment)
+	announceOutput(outputPrompt, value)
 	driverLoop()
 }
 
@@ -40,21 +38,14 @@ func promptForInput(s string) {
 	fmt.Printf("\n\n%s\n", s)
 }
 
-func announceOutput(s string) {
-	fmt.Printf("\n%s\n", s)
+func announceOutput(prompt string, output interface{}) {
+	fmt.Printf("\n%s\n", prompt)
+	fmt.Print(output)
 }
 
 func inputFromCMD() string {
 	input, _ := bufio.NewReader(os.Stdin).ReadString(';')
 	return strings.TrimSuffix(input, ";")
-}
-
-func userPrint(object interface{}) {
-	// todo check
-	if v, ok := object.(*common.Pair); ok && procedure.IsCompound(v) {
-		fmt.Print(common.List("compound-procedure", procedure.Parameters(v), procedure.Body(v)))
-	}
-	fmt.Print(object)
 }
 
 func tokenize(exp string) []string {
