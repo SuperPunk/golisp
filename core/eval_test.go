@@ -44,3 +44,19 @@ func TestEval(t *testing.T) {
 	assert.Equal(t, "'e", common.Caddddr(value))
 	assert.Equal(t, "'f", common.Cadddddr(value))
 }
+
+func TestEval2(t *testing.T) {
+	globalEnv := application.SetupEnvironment()
+
+	// 求值：
+	// (* 5 (+ 2 3))
+	exp := common.List("*", 5, common.List("+", 2, 3))
+	value := Eval(exp, globalEnv).(*common.Pair)
+
+	assert.Equal(t, "'a", common.Car(value))
+	assert.Equal(t, "'b", common.Cadr(value))
+	assert.Equal(t, "'c", common.Caddr(value))
+	assert.Equal(t, "'d", common.Cadddr(value))
+	assert.Equal(t, "'e", common.Caddddr(value))
+	assert.Equal(t, "'f", common.Cadddddr(value))
+}

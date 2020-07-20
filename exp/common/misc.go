@@ -1,6 +1,9 @@
 package common
 
-import "reflect"
+import (
+	"reflect"
+	"strconv"
+)
 
 type Proc func(interface{}) interface{}
 
@@ -23,4 +26,31 @@ func Map(proc Proc, list *Pair) *Pair {
 		return nil
 	}
 	return &Pair{proc(Car(list)), Map(proc, Cdr(list).(*Pair))}
+}
+
+func Add(a interface{}, b interface{}) interface{} {
+	return convertToInt(a) + convertToInt(b)
+}
+
+func Sub(a interface{}, b interface{}) interface{} {
+	return convertToInt(a) - convertToInt(b)
+}
+
+func Mul(a interface{}, b interface{}) interface{} {
+	return convertToInt(a) * convertToInt(b)
+
+}
+
+func Div(a interface{}, b interface{}) interface{} {
+	return convertToInt(a) / convertToInt(b)
+}
+
+func convertToInt(a interface{}) int {
+	ai, ok := a.(int)
+	if ok {
+		return ai
+	}
+	as, _ := a.(string)
+	ai, _ = strconv.Atoi(as)
+	return ai
 }

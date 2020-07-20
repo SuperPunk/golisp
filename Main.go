@@ -27,12 +27,12 @@ var theGlobalEnvironment = application.SetupEnvironment()
 // R-E-P Loop
 func driverLoop() {
 	promptForInput(inputPrompt)
-	func(input string) {
-		func(output interface{}) {
-			announceOutput(outputPrompt)
-			userPrint(output)
-		}(core.Eval(input, theGlobalEnvironment))
-	}(inputFromCMD())
+	expression := inputFromCMD()
+	tokens := tokenize(expression)
+	ast := buildAST(tokens)
+	output := core.Eval(ast, theGlobalEnvironment)
+	announceOutput(outputPrompt)
+	userPrint(output)
 	driverLoop()
 }
 
@@ -45,8 +45,8 @@ func announceOutput(s string) {
 }
 
 func inputFromCMD() string {
-	input, _ := bufio.NewReader(os.Stdin).ReadString('\n')
-	return strings.TrimSuffix(input, "\n")
+	input, _ := bufio.NewReader(os.Stdin).ReadString(';')
+	return strings.TrimSuffix(input, ";")
 }
 
 func userPrint(object interface{}) {
@@ -55,4 +55,27 @@ func userPrint(object interface{}) {
 		fmt.Print(common.List("compound-procedure", procedure.Parameters(v), procedure.Body(v)))
 	}
 	fmt.Print(object)
+}
+
+func tokenize(exp string) []string {
+	return strings.Fields(
+		strings.Replace(strings.Replace(exp, "(", " ( ", -1), ")", " ) ", -1),
+	)
+}
+
+func buildAST(tokens []string) *common.Pair {
+	var stack []interface{}
+	for _, token := range tokens {
+		if token == ")" {
+			var sub *common.Pair
+			for st := stack[len(stack)-1]; st != "("; st = stack[len(stack)-1] {
+				sub = common.Cons(st, sub)
+				stack = stack[:len(stack)-1]
+			}
+			stack[len(stack)-1] = sub
+		} else {
+			stack = append(stack, token)
+		}
+	}
+	return stack[0].(*common.Pair)
 }

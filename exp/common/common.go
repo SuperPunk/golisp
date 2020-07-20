@@ -16,5 +16,5 @@ func IsSymbol(expression interface{}) bool {
 }
 
 func isLetter(c uint8) bool {
-	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '?'
+	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '?' || c == '+' || c == '-' || c == '*' || c == '/'
 }

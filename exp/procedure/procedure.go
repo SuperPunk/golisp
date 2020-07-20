@@ -45,6 +45,10 @@ func PrimitiveProcedures() *common.Pair {
 		common.List("cdr", common.Cdr),
 		common.List("cons", common.Cons),
 		common.List("null?", common.IsNull),
+		common.List("+", common.Add),
+		common.List("-", common.Sub),
+		common.List("*", common.Mul),
+		common.List("/", common.Div),
 		// add more primitive procedures here, if you wish...
 	)
 }
